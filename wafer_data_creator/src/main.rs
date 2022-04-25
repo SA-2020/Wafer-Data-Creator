@@ -3,8 +3,8 @@ use std::io::Write;
 use rand::Rng;
 
 //チップの合計サイズ
-const NUM: usize = 10000;
-const EDGENUM: usize= 100;
+const NUM: usize = 250000;
+const EDGENUM: usize= 500;
 
 // 1/RANDAM_NUMで不良品が発生する．一つのウェハあたり，大体25個前後の不良品が出る設定．
 const RANDAM_NUM: u32 = 100;
@@ -32,6 +32,7 @@ impl Clone for Chipdata {
     }
 }
 
+
 impl Chipdata{
     fn new() -> Chipdata{
         Chipdata{
@@ -42,7 +43,7 @@ impl Chipdata{
     }
 }
 
-fn create_data(mut wafer_data: & mut [Chipdata; NUM]){
+fn create_data(wafer_data: & mut Vec<Chipdata>){
     for j in 0..EDGENUM{
         for k in 0..EDGENUM {
             wafer_data[j*EDGENUM + k].x_posithon = j as u32 + 1;
@@ -64,7 +65,7 @@ fn faild_chip() -> bool{
     chip_status
 }
 
-fn save_file(wafer_data: [Chipdata; NUM], file_number: u32) -> Result<(), Box<dyn std::error::Error>>{
+fn save_file(wafer_data: &  Vec<Chipdata>, file_number: u32) -> Result<(), Box<dyn std::error::Error>>{
     let file_name :String= format!("{}{}{}", "wafer_data", file_number.to_string(), ".csv");
     let mut wafer_data_file = File::create(file_name)?;
 
@@ -81,14 +82,11 @@ fn save_file(wafer_data: [Chipdata; NUM], file_number: u32) -> Result<(), Box<dy
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>>{
-
-    let mut chip_array=[Chipdata::new(); NUM];
-
-    
+    let mut chip_array: Vec<Chipdata>= vec![Chipdata::new(); NUM];
     println!("Creating Wafer_Data.");
     for k in 1..=FILENUM {
         create_data(& mut chip_array);
-        save_file(chip_array,k)?;
+        save_file(& chip_array,k)?;
     }
     println!("Writing finished");
     Ok(())
