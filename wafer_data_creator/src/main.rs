@@ -1,16 +1,18 @@
 use std::fs::File;
+use std::fs;
+use std::path::Path;
 use std::io::Write;
 use rand::Rng;
 
 //チップの合計サイズ
-const NUM: usize = 250000;
-const EDGENUM: usize= 500;
+const NUM: usize = 10000;
+const EDGENUM: usize= 100;
 
 // 1/RANDAM_NUMで不良品が発生する．一つのウェハあたり，大体25個前後の不良品が出る設定．
 const RANDAM_NUM: u32 = 100;
 
 //生成されるファイルの総数
-const FILENUM: u32 = 5;
+const FILENUM: u32 = 100;
 
 struct Chipdata{
     x_posithon: u32,
@@ -27,7 +29,7 @@ impl Clone for Chipdata {
         Chipdata{
             x_posithon: self.x_posithon,
             y_position: self.y_position,
-            yeild_ratio: self.yeild_ratio 
+            yeild_ratio: self.yeild_ratio
         }
     }
 }
@@ -66,8 +68,10 @@ fn faild_chip() -> bool{
 }
 
 fn save_file(wafer_data: &  Vec<Chipdata>, file_number: u32) -> Result<(), Box<dyn std::error::Error>>{
-    let file_name :String= format!("{}{}{}", "wafer_data", file_number.to_string(), ".csv");
-    let mut wafer_data_file = File::create(file_name)?;
+    let file_name :String= format!("{}{}{}{}","./output_data/","wafer_data", file_number.to_string(), ".csv");
+    //println!("{}",file_name);
+    let file_path = Path::new(& file_name);
+    let mut wafer_data_file = File::create(file_path)?;
 
     let mut contents: String;
     for (i,_) in  wafer_data.iter().enumerate() {
@@ -84,6 +88,10 @@ fn save_file(wafer_data: &  Vec<Chipdata>, file_number: u32) -> Result<(), Box<d
 fn main() -> Result<(), Box<dyn std::error::Error>>{
     let mut chip_array: Vec<Chipdata>= vec![Chipdata::new(); NUM];
     println!("Creating Wafer_Data.");
+    let path = Path::new("/output_data");
+    if !(path.exists()){
+        fs::create_dir("/output_data")?;
+    }
     for k in 1..=FILENUM {
         create_data(& mut chip_array);
         save_file(& chip_array,k)?;
